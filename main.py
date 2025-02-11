@@ -4,6 +4,12 @@ from bs4 import BeautifulSoup, NavigableString
 from pkg.plugin.context import register, handler, BasePlugin, APIHost, EventContext
 from pkg.plugin.events import *
 import pkg.platform.types as platform_types
+import os
+import shutil
+import base64
+import io
+from PIL import Image  # 导入 Pillow 库
+
 
 @register(name="ImageSearchPlugin", description="使用识图网站搜索图片来源",
           version="1.0", author="BiFangKNT")
@@ -11,6 +17,11 @@ class ImageSearchPlugin(BasePlugin):
 
     def __init__(self, host: APIHost):
         super().__init__(host)
+        # 获取插件根目录
+        self.plugin_path = os.path.dirname(os.path.abspath(__file__))
+        self.download_folder = os.path.join(self.plugin_path, "temp_images")  # 设置临时图片存储文件夹
+        if not os.path.exists(self.download_folder):
+            os.makedirs(self.download_folder)
 
     # 异步初始化
     async def initialize(self):
@@ -26,26 +37,41 @@ class ImageSearchPlugin(BasePlugin):
         message_chain = ctx.event.query.message_chain
         for message in message_chain:
             if isinstance(message, platform_types.Image):
-                image_url = message.url
-                search_result = self.search_image(image_url)
-                if search_result:
-                    # 使用 add_return 方法添加回复
-                    ctx.add_return('reply', [platform_types.Plain(search_result)])
-                    # 阻止该事件默认行为
-                    ctx.prevent_default()
-                    # 阻止后续插件执行
-                    ctx.prevent_postorder()
+                base64_image = message.base64
+                if base64_image:
+                    # 移除 "data:image/png;base64," 前缀
+                    if base64_image.startswith("data:image/png;base64,"):
+                        base64_image = base64_image[len("data:image/png;base64,"):]
+
+                    search_result = await self.search_image(base64_image)
+                    if search_result:
+                        # 使用 add_return 方法添加回复
+                        ctx.add_return('reply', [platform_types.Plain(search_result)])
+                        # 阻止该事件默认行为
+                        ctx.prevent_default()
+                        # 阻止后续插件执行
+                        ctx.prevent_postorder()
                 break
 
-    def search_image(self, image_url):
+    async def search_image(self, base64_image):
         try:
             url = "https://saucenao.com/search.php"
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
             }
-            data = {'url': image_url, 'frame': '1', 'hide': '0', 'database': '999'}
-            
-            response = requests.post(url, data=data, headers=headers)
+
+            # 解码 base64 数据
+            try:
+                image_data = base64.b64decode(base64_image.encode('utf-8'))
+            except Exception as e:
+                self.ap.logger.error(f"Base64 解码失败: {e}")
+                return "Base64 解码失败，请稍后再试。"
+
+            # 使用 files 参数上传图片
+            files = {'file': ('image.png', image_data, 'image/png')}  # 需要提供文件名和 MIME 类型
+            data = {'frame': '1', 'hide': '0', 'database': '999'}  # 其他参数
+
+            response = requests.post(url, files=files, data=data, headers=headers)
 
             if response.status_code == 200:
                 return self.parse_result(response.text)
@@ -58,7 +84,7 @@ class ImageSearchPlugin(BasePlugin):
     def parse_result(self, html_content):
         soup = BeautifulSoup(html_content, 'html.parser')
         result_div = soup.select_one('.resulttablecontent')
-        
+
         if result_div:
             result = []
 
@@ -125,6 +151,6 @@ class ImageSearchPlugin(BasePlugin):
             return "\n".join(result)
         else:
             return "未找到匹配的图片信息。"
-    
+
     def __del__(self):
         pass
