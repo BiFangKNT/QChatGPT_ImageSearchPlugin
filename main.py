@@ -5,6 +5,7 @@ from pkg.plugin.context import register, handler, BasePlugin, APIHost, EventCont
 from pkg.plugin.events import *
 import pkg.platform.types as platform_types
 import base64
+import re
 
 @register(name="ImageSearchPlugin", description="使用识图网站搜索图片来源",
           version="1.1", author="BiFangKNT")
@@ -29,9 +30,11 @@ class ImageSearchPlugin(BasePlugin):
             if isinstance(message, platform_types.Image):
                 base64_image = message.base64
                 if base64_image:
-                    # 移除 "data:image/png;base64," 前缀
-                    if base64_image.startswith("data:image/png;base64,"):
-                        base64_image = base64_image[len("data:image/png;base64,"):]
+                    self.ap.logger.info(
+                        f"ImageSearchPlugin.py: Base64 字符串开头 30 个字符 (received): {base64_image[:30]}")
+
+                    # 使用正则表达式移除 "data:image/<format>;base64," 前缀
+                    base64_image = re.sub(r'^data:image/[^;]+;base64,', '', base64_image)
 
                     search_result = await self.search_image(base64_image)
                     if search_result:
