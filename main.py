@@ -4,12 +4,7 @@ from bs4 import BeautifulSoup, NavigableString
 from pkg.plugin.context import register, handler, BasePlugin, APIHost, EventContext
 from pkg.plugin.events import *
 import pkg.platform.types as platform_types
-import os
-import shutil
 import base64
-import io
-from PIL import Image  # 导入 Pillow 库
-
 
 @register(name="ImageSearchPlugin", description="使用识图网站搜索图片来源",
           version="1.1", author="BiFangKNT")
@@ -17,11 +12,6 @@ class ImageSearchPlugin(BasePlugin):
 
     def __init__(self, host: APIHost):
         super().__init__(host)
-        # 获取插件根目录
-        self.plugin_path = os.path.dirname(os.path.abspath(__file__))
-        self.download_folder = os.path.join(self.plugin_path, "temp_images")  # 设置临时图片存储文件夹
-        if not os.path.exists(self.download_folder):
-            os.makedirs(self.download_folder)
 
     # 异步初始化
     async def initialize(self):
