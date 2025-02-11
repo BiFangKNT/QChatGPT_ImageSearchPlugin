@@ -12,7 +12,7 @@ from PIL import Image  # 导入 Pillow 库
 
 
 @register(name="ImageSearchPlugin", description="使用识图网站搜索图片来源",
-          version="1.0", author="BiFangKNT")
+          version="1.1", author="BiFangKNT")
 class ImageSearchPlugin(BasePlugin):
 
     def __init__(self, host: APIHost):
