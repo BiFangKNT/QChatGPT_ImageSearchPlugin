@@ -92,13 +92,13 @@ class ImageSearchPlugin(BasePlugin):
                 source = self.get_attribute(first_result, 'source')
 
                 search_result = (
-                    f"相似度: {similarity}\n"
-                    f"标题: {title}\n"
-                    f"作者: {author}\n"
-                    f"作者链接: {author_url}\n"
-                    f"来源链接: {source}\n"
-                    f"图库链接: {url}\n"
-                    f"索引名称: {index_name}"
+                    f"🔍相似度: {similarity}\n\n"
+                    f"🖼️标题: {title}\n\n"
+                    f"✍️作者: {author}\n"
+                    f"🔗作者链接: {author_url}\n\n"
+                    f"🌐来源链接: {source}\n\n"
+                    f"📚图库链接: {url}\n\n"
+                    f"🗂️索引名称: {index_name}"
                 )
 
                 return search_result
