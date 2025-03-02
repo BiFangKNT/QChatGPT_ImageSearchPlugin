@@ -59,7 +59,12 @@ class ImageSearchPlugin(BasePlugin):
         """
         获取对象的属性值，如果属性不存在或为空，则返回 "没有检索到哦~"。
         """
-        return getattr(obj, attr, None) or "没有检索到哦~"
+        value = getattr(obj, attr, None)
+        if not value:
+            return "没有检索到哦~"
+        if attr == 'similarity':
+            return str(value) + '%'  # 添加百分号
+        return value
 
     async def search_image(self, base64_image):
         try:
