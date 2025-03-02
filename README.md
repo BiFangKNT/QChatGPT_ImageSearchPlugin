@@ -30,6 +30,20 @@
 
 ## 安装
 
+建议先在环境中配置环境变量：
+
+**1. 获取 SauceNAO API 密钥：**
+
+*   访问 SauceNAO 网站并注册一个帐户。
+*   在您的帐户设置中，找到您的 API 密钥。
+
+**2. 设置环境变量：**
+
+*   在您的服务器或本地环境中，设置名为 `SAUCENAO_API_KEY` 的环境变量，并将其值设置为您的 API 密钥。
+*   如何设置环境变量取决于您的操作系统和环境。例如，在 Linux 或 macOS 中，您可以使用 `export SAUCENAO_API_KEY=YOUR_API_KEY` 命令。
+
+**请务必替换 `YOUR_API_KEY` 为您实际的 API 密钥。**
+
 配置完成 [QChatGPT](https://github.com/RockChinQ/QChatGPT) 主程序后使用管理员账号向机器人发送命令即可安装：
 
 ```
