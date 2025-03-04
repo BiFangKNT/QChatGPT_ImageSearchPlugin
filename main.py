@@ -110,6 +110,7 @@ class ImageSearchPlugin(BasePlugin):
             return "图片搜索失败,请稍后再试。"
 
     def __del__(self):
-        if self.saucenao:
-            import asyncio
-            asyncio.get_event_loop().run_until_complete(self.saucenao.close())
+        # if self.saucenao:
+        #     import asyncio
+        #     asyncio.get_event_loop().run_until_complete(self.saucenao.close())
+        pass
